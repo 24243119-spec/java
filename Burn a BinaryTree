@@ -1,0 +1,90 @@
+import java.util.*;
+
+public class BurnBinaryTree {
+
+    static class Node {
+        int data;
+        Node left, right;
+
+        Node(int data) {
+            this.data = data;
+        }
+    }
+
+    static Map<Node, Node> parentMap = new HashMap<>();
+
+    static void markParents(Node root, Node parent) {
+        if (root == null) return;
+
+        parentMap.put(root, parent);
+
+        markParents(root.left, root);
+        markParents(root.right, root);
+    }
+
+    static int burnTree(Node target) {
+
+        Queue<Node> q = new LinkedList<>();
+        Set<Node> visited = new HashSet<>();
+
+        q.offer(target);
+        visited.add(target);
+
+        int time = 0;
+
+        while (!q.isEmpty()) {
+
+            int size = q.size();
+            boolean burned = false;
+
+            for (int i = 0; i < size; i++) {
+
+                Node curr = q.poll();
+
+                if (curr.left != null && !visited.contains(curr.left)) {
+                    q.offer(curr.left);
+                    visited.add(curr.left);
+                    burned = true;
+                }
+
+                if (curr.right != null && !visited.contains(curr.right)) {
+                    q.offer(curr.right);
+                    visited.add(curr.right);
+                    burned = true;
+                }
+
+                Node parent = parentMap.get(curr);
+
+                if (parent != null && !visited.contains(parent)) {
+                    q.offer(parent);
+                    visited.add(parent);
+                    burned = true;
+                }
+            }
+
+            if (burned)
+                time++;
+        }
+
+        return time;
+    }
+
+    public static void main(String[] args) {
+
+        Node root = new Node(1);
+        root.left = new Node(2);
+        root.right = new Node(3);
+
+        root.left.left = new Node(4);
+        root.left.right = new Node(5);
+
+        root.right.right = new Node(6);
+
+        markParents(root, null);
+
+        System.out.println(
+            "Time to Burn Tree = " +
+            burnTree(root.left.right)
+        );
+    }
+}
